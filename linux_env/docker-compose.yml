@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  builder:
+    container_name: dev_env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dev_env_builder
+    ports:
+      - "${DEV_SSH_PORT}:22"
+    volumes:
+      - ~/.ssh:/tmp/ssh
+    networks:
+      - internal_net
+    env_file:
+      - .env
+
+  postgres:
+    container_name: db_container
+    image: postgres:13.4-alpine
+    environment:
+      - TZ=UTC
+      - PGTZ=UTC
+      - POSTGRES_DB=db
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=db_password
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - internal_net
+
+networks:
+  internal_net: {}
+
+volumes:
+ postgres_volume: {}
